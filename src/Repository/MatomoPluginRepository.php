@@ -15,6 +15,16 @@ class MatomoPluginRepository extends ArrayRepository
     protected const API = 'https://plugins.matomo.org';
     protected const API_VERSION = '2.0';
 
+    /**
+     * A list of packages names and their versions that we know are incompatible with composer
+     */
+    protected const KNOWN_FAILURES = [
+        'SARAVANA1501/TrackerJsCdnSync' => [
+            '0.0.7-2',
+            '0.0.7-3',
+        ],
+    ];
+
     private string $auth;
 
     public function __construct(
@@ -30,7 +40,6 @@ class MatomoPluginRepository extends ArrayRepository
     protected function initialize(): void
     {
         $this->packages = [];
-        $this->io->write('Loading matomo plugins...');
 
         $boundary = '----MatomoBoundaryW3XDKIM3ZOBE9SKYHINXT5QO';
         $options = [
@@ -63,6 +72,11 @@ class MatomoPluginRepository extends ArrayRepository
             $handle = 'mpl/' . strtolower($owner) . '-' . strtolower($name);
 
             foreach ($versions as $versionData) {
+                $knownFailures = $this::KNOWN_FAILURES["{$owner}/{$name}"] ?? [];
+                if (in_array($versionData['name'], $knownFailures)) {
+                    $this->io->debug("Skipping known failure {$owner}/{$name}@{$versionData['name']}");
+                    continue;
+                }
                 $download = $versionData['download'] ?? null;
                 if (!$download) {
                     continue;
@@ -109,13 +123,13 @@ class MatomoPluginRepository extends ArrayRepository
 
                     $this->addPackage($pkg);
                 } catch (\Throwable $e) {
-                    $this->io->writeError('Unable to load ' . $handle . '@' . $package['version'] . ': ' . $e->getMessage());
+                    $this->io->debug('Unable to load ' . "{$owner}/{$name}@{$package['version']}" . ': ' . $e->getMessage());
                 }
             }
         }
     }
 
-    protected function fetchJson(string $uri, array $options = [], $ttl = 600): array
+    protected function fetchJson(string $uri, array $options = [], $ttl = 10): array
     {
         $cacheKey = 'mpl/' . hash('sha256', $uri) . '.json';
         $cacheAge = $this->cache->getAge($cacheKey);
@@ -123,6 +137,7 @@ class MatomoPluginRepository extends ArrayRepository
             return json_decode($this->cache->read($cacheKey), true);
         }
 
+        $this->io->notice('Loading matomo plugins, this usually takes about 10 seconds...');
         $result = $this->downloader->get($uri, $options)->getBody();
 
         $this->cache->write($cacheKey, $result);

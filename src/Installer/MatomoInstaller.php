@@ -25,8 +25,6 @@ class MatomoInstaller extends LibraryInstaller
 
     public function supports(string $packageType): bool
     {
-        $this->io->writeError($packageType);
-
         return match ($packageType) {
             'mpl-plugin', 'mpl-theme', 'mpl-matomo' => true,
             default => false,
@@ -36,8 +34,8 @@ class MatomoInstaller extends LibraryInstaller
     public function getInstallPath(PackageInterface $package): string
     {
         return match ($package->getType()) {
-            'mpl-plugin', 'mpl-theme' => 'public/plugins/' . ($package->getTransportOptions()['matomo']['name'] ?? $package->getName()),
-            'mpl-matomo' => 'public/',
+            'mpl-plugin', 'mpl-theme' => 'mpl-matomo/plugins/' . ($package->getTransportOptions()['matomo']['name'] ?? $package->getName()),
+            'mpl-matomo' => 'mpl-matomo/',
             default => parent::getInstallPath($package),
         };
     }
