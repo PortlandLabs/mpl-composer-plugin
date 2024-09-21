@@ -1,0 +1,29 @@
+{
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "repositories": {
+    "local-plugin": {
+      "type": "path",
+      "url": "../"
+    }
+  },
+  "require": {
+    "portlandlabs/matomo-marketplace-plugin": "dev-main",
+    "mpl/matomo": "^5.1",
+    "mpl/dominik-th-loginoidc": "^5.0",
+    "mpl/amperage-marketing-twitterfeedwidgetbyamperage": "^5.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "portlandlabs/matomo-marketplace-plugin": true
+    }
+  },
+  "extra": {
+    "matomo": {
+      "AbTesting": "5.0.0"
+    }
+  },
+  "require-dev": {
+    "laravel/pint": "^1.17"
+  }
+}

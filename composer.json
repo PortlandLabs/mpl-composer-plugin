@@ -1,0 +1,28 @@
+{
+    "name": "portlandlabs/matomo-marketplace-plugin",
+    "type": "composer-plugin",
+    "require": {
+        "composer-plugin-api": "^2.0",
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "composer/composer": "^2.0",
+        "pestphp/pest": "^3.0",
+        "laravel/pint": "^1.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "PortlandLabs\\MatomoMarketplacePlugin\\": "src"
+        }
+    },
+    "extra": {
+        "class": "PortlandLabs\\MatomoMarketplacePlugin\\Plugin",
+        "plugin-modifies-downloads": true,
+        "plugin-modifies-install-path": true
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
