@@ -1,6 +1,6 @@
 <?php
 
-namespace PortlandLabs\MatomoMarketplacePlugin\Repository;
+namespace PortlandLabs\MatomoMarketplacePlugin;
 
 use Composer\Cache;
 use Composer\Config;
@@ -8,7 +8,6 @@ use Composer\IO\IOInterface;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Repository\ArrayRepository;
 use Composer\Util\HttpDownloader;
-use PortlandLabs\MatomoMarketplacePlugin\Util\Http;
 
 class MatomoPluginRepository extends ArrayRepository
 {
@@ -16,7 +15,7 @@ class MatomoPluginRepository extends ArrayRepository
     protected const API_VERSION = '2.0';
 
     /**
-     * A list of packages names and their versions that we know are incompatible with composer
+     * A list of packages names and versions that we don't complain about
      */
     protected const KNOWN_FAILURES = [
         'SARAVANA1501/TrackerJsCdnSync' => [
@@ -40,17 +39,7 @@ class MatomoPluginRepository extends ArrayRepository
     protected function initialize(): void
     {
         $this->packages = [];
-
-        $boundary = '----MatomoBoundaryW3XDKIM3ZOBE9SKYHINXT5QO';
-        $options = [
-            'http' => [
-                'method' => 'POST',
-                'header' => ['Content-Type: multipart/form-data; boundary=' . $boundary],
-                'content' => Http::multipartBody($boundary, ['access_token' => $this->config->get('matomo-auth')['plugins'] ?? '']),
-            ],
-        ];
-
-        $json = $this->fetchJson($this->apiUrl('/plugins', []), $options)['plugins'] ?? [];
+        $json = $this->fetchJson($this->apiUrl('/plugins', []), Util::authOptions($this->config))['plugins'] ?? [];
 
         foreach ($json as $packageData) {
             if (!($packageData['isDownloadable'] ?? false) || ($packageData['isBundle'] ?? true)) {
@@ -94,7 +83,7 @@ class MatomoPluginRepository extends ArrayRepository
                     'time' => $versionData['release'] ?? null,
                     'dist' => [
                         'url' => $this::API . ($versionData['download'] ?? ''),
-                        'type' => 'zip',
+                        'type' => 'mpl-plugin',
                     ],
                     'require' => [
                         'php' => $versionData['requires']['php'] ?? '*',
@@ -113,12 +102,12 @@ class MatomoPluginRepository extends ArrayRepository
 
                 try {
                     $pkg = $this->loader->load($package);
-                    $pkg->setTransportOptions([
-                        'matomo' => [
+                    $pkg->setExtra([
+                        ...$pkg->getExtra(),
+                        'mpl' => [
                             'name' => $name,
                             'owner' => $owner,
                         ],
-                        ...$options,
                     ]);
 
                     $this->addPackage($pkg);
@@ -129,7 +118,7 @@ class MatomoPluginRepository extends ArrayRepository
         }
     }
 
-    protected function fetchJson(string $uri, array $options = [], $ttl = 10): array
+    protected function fetchJson(string $uri, array $options = [], $ttl = 600): array
     {
         $cacheKey = 'mpl/' . hash('sha256', $uri) . '.json';
         $cacheAge = $this->cache->getAge($cacheKey);

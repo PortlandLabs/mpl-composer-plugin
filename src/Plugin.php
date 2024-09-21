@@ -8,8 +8,6 @@ use Composer\IO\IOInterface;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Plugin\PluginInterface;
 use Composer\Repository\VcsRepository;
-use PortlandLabs\MatomoMarketplacePlugin\Installer\MatomoInstaller;
-use PortlandLabs\MatomoMarketplacePlugin\Repository\MatomoPluginRepository;
 
 class Plugin implements PluginInterface
 {
@@ -32,6 +30,17 @@ class Plugin implements PluginInterface
 
         $matomoInstaller = new MatomoInstaller($cache, $io, $composer);
         $composer->getInstallationManager()->addInstaller($matomoInstaller);
+
+        /**
+         * public function __construct(IOInterface $io, Config $config, HttpDownloader $httpDownloader, ?EventDispatcher $eventDispatcher = null, ?Cache $cache = null, ?Filesystem $filesystem = null, ?ProcessExecutor $process = null)
+ */
+        $downloader = $composer->getLoop()->getHttpDownloader();
+        $dispatcher = $composer->getEventDispatcher();
+        $process = $composer->getLoop()->getProcessExecutor();
+        $downloader = new MatomoPluginDownloader($io, $config, $downloader, $dispatcher, $cache, null, $process);
+        $composer->getDownloadManager()->setDownloader('mpl-plugin', $downloader);
+
+        $composer->getEventDispatcher()->addSubscriber(new MatomoEventSubscriber());
     }
 
     public function deactivate(Composer $composer, IOInterface $io) {}

@@ -8,19 +8,21 @@
     }
   },
   "require": {
-    "portlandlabs/matomo-marketplace-plugin": "dev-main",
-    "mpl/matomo": "^5.1",
-    "mpl/dominik-th-loginoidc": "^5.0",
-    "mpl/amperage-marketing-twitterfeedwidgetbyamperage": "^5.0"
+    "mpl/composer-plugin": "dev-main",
+    "mpl/matomo": "5.1.1",
+    "mpl/matomo-org-abtesting": "^5.2"
   },
   "config": {
     "allow-plugins": {
-      "portlandlabs/matomo-marketplace-plugin": true
+      "mpl/composer-plugin": true
     }
   },
   "extra": {
-    "matomo": {
-      "AbTesting": "5.0.0"
+    "mpl": {
+      "link": [
+        "common.config.ini.php",
+        "plugins"
+      ]
     }
   },
   "require-dev": {
