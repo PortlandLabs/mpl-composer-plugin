@@ -1,5 +1,5 @@
 {
-    "name": "portlandlabs/matomo-marketplace-plugin",
+    "name": "mpl/composer-plugin",
     "type": "composer-plugin",
     "require": {
         "composer-plugin-api": "^2.0",
