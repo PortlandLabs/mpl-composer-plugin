@@ -14,7 +14,7 @@ class Plugin implements PluginInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $config = $composer->getConfig();
-        $cache = new Cache($io, $config->get('cache-repo-dir') . '/matomo', 'a-z0-9.$~_');
+        $cache = new Cache($io, $config->get('cache-repo-dir') . '/mpl', 'a-z0-9.$~_');
 
         // Add plugin repository
         $pluginRepository = new MatomoPluginRepository($config, $cache, $io, new ArrayLoader(), $composer->getLoop()->getHttpDownloader());
@@ -31,9 +31,6 @@ class Plugin implements PluginInterface
         $matomoInstaller = new MatomoInstaller($cache, $io, $composer);
         $composer->getInstallationManager()->addInstaller($matomoInstaller);
 
-        /**
-         * public function __construct(IOInterface $io, Config $config, HttpDownloader $httpDownloader, ?EventDispatcher $eventDispatcher = null, ?Cache $cache = null, ?Filesystem $filesystem = null, ?ProcessExecutor $process = null)
- */
         $downloader = $composer->getLoop()->getHttpDownloader();
         $dispatcher = $composer->getEventDispatcher();
         $process = $composer->getLoop()->getProcessExecutor();

@@ -9,6 +9,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\PartialComposer;
 use Composer\Util\Filesystem;
+use React\Promise\PromiseInterface;
 
 class MatomoInstaller extends LibraryInstaller
 {
@@ -51,6 +52,10 @@ class MatomoInstaller extends LibraryInstaller
     public function cleanup($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
     {
         $cleanup = parent::cleanup($type, $package, $prevPackage);
+        if (!$cleanup instanceof PromiseInterface) {
+            throw new \RuntimeException('Unexpected cleanup output.');
+        }
+
         return (match ($type) {
             'install', 'update' => match ($package->getType()) {
                 'mpl-matomo' => $cleanup->then(fn() => $this->createMatomoSymlinks(getcwd() . '/' . $this->getInstallPath($package))),

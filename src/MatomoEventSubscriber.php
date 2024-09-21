@@ -4,6 +4,7 @@ namespace PortlandLabs\MatomoMarketplacePlugin;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Package\PackageInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Composer\Util\SyncHelper;
@@ -38,7 +39,7 @@ class MatomoEventSubscriber implements EventSubscriberInterface
             }
 
             $path = $installer->getInstallPath($lockedPackage);
-            if (file_exists($path) && (!is_link($path) || file_exists(readlink($path)))) {
+            if ($path === null || file_exists($path) && (!is_link($path) || file_exists((string) readlink($path)))) {
                 continue;
             }
 
@@ -52,7 +53,8 @@ class MatomoEventSubscriber implements EventSubscriberInterface
         array_map(fn(array $data) => $this->reinstallMissingPlugin($composer, ...$data), $missing);
     }
 
-    private function reinstallMissingPlugin(Composer $composer, mixed $lockedPackage, string $path)
+
+    private function reinstallMissingPlugin(Composer $composer, PackageInterface $lockedPackage, string $path): void
     {
         SyncHelper::downloadAndInstallPackageSync(
             $composer->getLoop(),

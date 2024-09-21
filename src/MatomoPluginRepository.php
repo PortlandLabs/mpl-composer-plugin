@@ -6,6 +6,7 @@ use Composer\Cache;
 use Composer\Config;
 use Composer\IO\IOInterface;
 use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\Package;
 use Composer\Repository\ArrayRepository;
 use Composer\Util\HttpDownloader;
 
@@ -23,8 +24,6 @@ class MatomoPluginRepository extends ArrayRepository
             '0.0.7-3',
         ],
     ];
-
-    private string $auth;
 
     public function __construct(
         protected Config $config,
@@ -102,6 +101,10 @@ class MatomoPluginRepository extends ArrayRepository
 
                 try {
                     $pkg = $this->loader->load($package);
+                    if (!$pkg instanceof Package) {
+                        throw new \RuntimeException('Invalid type returned from loading plugin package json.');
+                    }
+
                     $pkg->setExtra([
                         ...$pkg->getExtra(),
                         'mpl' => [
@@ -118,21 +121,33 @@ class MatomoPluginRepository extends ArrayRepository
         }
     }
 
-    protected function fetchJson(string $uri, array $options = [], $ttl = 600): array
+    /**
+     * @param array<string, mixed> $options
+     * @return array<array-key, mixed>
+     */
+    protected function fetchJson(string $uri, array $options = [], int $ttl = 600): array
     {
         $cacheKey = 'mpl/' . hash('sha256', $uri) . '.json';
         $cacheAge = $this->cache->getAge($cacheKey);
         if ($cacheAge !== false && $cacheAge < $ttl) {
-            return json_decode($this->cache->read($cacheKey), true);
+            return json_decode((string) $this->cache->read($cacheKey), true);
         }
 
         $this->io->notice('Loading matomo plugins, this usually takes about 10 seconds...');
         $result = $this->downloader->get($uri, $options)->getBody();
+        if ($result === null) {
+            throw new \RuntimeException('Failed to fetch json.');
+        }
 
         $this->cache->write($cacheKey, $result);
         return json_decode($result, true);
     }
 
+    /**
+     * @param string $path
+     * @param array<string, string> $query
+     * @return string
+     */
     protected function apiUrl(string $path, array $query = []): string
     {
         $separator = str_contains($this::API, '?') ? '&' : '?';
