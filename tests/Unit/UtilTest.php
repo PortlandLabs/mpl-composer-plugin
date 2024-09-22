@@ -3,7 +3,7 @@
 it('loads authenticates requests properly', function () {
     $token = bin2hex(random_bytes(16));
     $config = $this->createStub(\Composer\Config::class);
-    $config->method('get')->willReturnMap([['mpl-auth', ['plugins' => $token]]]);
+    $config->method('get')->willReturnMap([['bearer', ['mpl' => $token]]]);
 
     $options = \PortlandLabs\MatomoMarketplacePlugin\Util::authOptions($config);
     $boundary = explode('=', $options['http']['header'][0] ?? '')[1] ?? null;

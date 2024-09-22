@@ -48,7 +48,7 @@ class Util
             'http' => [
                 'method' => 'POST',
                 'header' => ['Content-Type: multipart/form-data; boundary=' . $boundary],
-                'content' => self::multipartBody($boundary, ['access_token' => $config->get('mpl-auth')['plugins'] ?? '']),
+                'content' => self::multipartBody($boundary, ['access_token' => $config->get('bearer')['mpl'] ?? '']),
             ],
         ];
     }
