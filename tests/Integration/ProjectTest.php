@@ -1,6 +1,5 @@
 <?php
 
-use Composer\Util\ProcessExecutor;
 
 it('installs correctly', function () {
     echo "Integration tests require a valid matomo license capable of installing AbTesting 5.0.0";
@@ -12,8 +11,11 @@ it('installs correctly', function () {
     expect($baseDir . '/vendor')->not->toBeFile('Unable to delete vendor directory');
     expect($baseDir . '/mpl-matomo')->not->toBeFile('Unable to delete mpl-matomo directory');
 
-    $exec = new ProcessExecutor();
-    $install = $exec->execute('composer install', $output, $baseDir);
+    $install = new Symfony\Component\Process\Process(['composer', 'install'], $baseDir);
+    $install->run(function ($type, $buffer) {
+        echo "[$type] $buffer \n";
+    });
+
     expect($install)->toBe(0)
         // Main matomo directory exsits
         ->and($baseDir . '/mpl-matomo')->toBeDirectory()

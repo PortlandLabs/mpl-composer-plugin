@@ -1,0 +1,77 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "f877ad22dba3e6610e0a0cf6f64bc628",
+    "packages": [
+        {
+            "name": "mpl/composer-plugin",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "..",
+                "reference": "6f9a5fb1d3a41f6f4117262b0d2e1cea0228affc"
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "composer/composer": "^2.0",
+                "laravel/pint": "^1.17",
+                "pestphp/pest": "^3.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^1.12"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "PortlandLabs\\MatomoMarketplacePlugin\\Plugin",
+                "plugin-modifies-downloads": true,
+                "plugin-modifies-install-path": true
+            },
+            "autoload": {
+                "psr-4": {
+                    "PortlandLabs\\MatomoMarketplacePlugin\\": "src"
+                }
+            },
+            "scripts": {
+                "lint": [
+                    "pint"
+                ],
+                "test:lint": [
+                    "@lint --test"
+                ],
+                "test:unit": [
+                    "pest --group unit"
+                ],
+                "test:integration": [
+                    "pest --group integration"
+                ],
+                "test:types": [
+                    "phpstan"
+                ],
+                "test": [
+                    "@test:lint",
+                    "@test:unit",
+                    "@test:types"
+                ]
+            },
+            "transport-options": {
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "mpl/composer-plugin": 20
+    },
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}
