@@ -1,6 +1,6 @@
 {
   "preset": "per",
   "exclude": [
-    "test-project"
+    "example"
   ]
 }

@@ -46,7 +46,13 @@ class Util
         $boundary = '----MplBoundaryW3XDKIM3ZOBE9SKYHINXT5QO';
         $result = ['http' => ['method' => 'POST']];
 
-        $token = $config->get('bearer')['mpl'] ?? null;
+        // First try env
+        $token = $_ENV['MATOMO_TOKEN'] ?? getenv('MATOMO_TOKEN') ?: null;
+        $token = $token ?? $_ENV['MPL_TOKEN'] ?? getenv('MPL_TOKEN') ?: null;
+
+        // Next try config
+        $token = $token ?? $config->get('bearer')['mpl'] ?? null;
+
         if ($token !== null) {
             $result['http']['header'] = ['Content-Type: multipart/form-data; boundary=' . $boundary];
             $result['http']['content'] = self::multipartBody($boundary, ['access_token' => $token]);

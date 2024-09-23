@@ -39,7 +39,7 @@ class MatomoEventSubscriber implements EventSubscriberInterface
             }
 
             $path = $installer->getInstallPath($lockedPackage);
-            if ($path === null || file_exists($path) && (!is_link($path) || file_exists((string) readlink($path)))) {
+            if ($path === null || (file_exists($path) && (!is_link($path) || file_exists((string) readlink($path))))) {
                 continue;
             }
 
