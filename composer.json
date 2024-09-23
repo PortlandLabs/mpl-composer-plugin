@@ -31,7 +31,8 @@
     "scripts": {
         "lint": "pint",
         "test:lint": "@lint --test",
-        "test:unit":  "pest",
+        "test:unit":  "pest --group unit",
+        "test:integration":  "pest --group integration",
         "test:types": "phpstan",
         "test": [
             "@test:lint",

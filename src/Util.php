@@ -11,7 +11,7 @@ class Util
      * @param array<string, string|string[]> $data
      * @return string
      */
-    private static function multipartBody(string $boundary, array $data): string
+    public static function multipartBody(string $boundary, array $data): string
     {
         $body = [];
         foreach ($data as $key => $value) {
@@ -25,7 +25,7 @@ class Util
             }
         }
 
-        return "--{$boundary}\n" . implode("\n{$boundary}\n", $body) . "\n--{$boundary}--";
+        return "--{$boundary}\n" . implode("\n--{$boundary}\n", $body) . "\n--{$boundary}--";
     }
 
     private static function multipartBlock(string $key, string $value): string
@@ -39,17 +39,19 @@ class Util
 
     /**
      * @param Config $config
-     * @return array{http: array{method: string, header: string[], content: string}}
+     * @return array{http: array{method: string, header?: string[], content?: string}}
      */
     public static function authOptions(Config $config): array
     {
         $boundary = '----MplBoundaryW3XDKIM3ZOBE9SKYHINXT5QO';
-        return [
-            'http' => [
-                'method' => 'POST',
-                'header' => ['Content-Type: multipart/form-data; boundary=' . $boundary],
-                'content' => self::multipartBody($boundary, ['access_token' => $config->get('bearer')['mpl'] ?? '']),
-            ],
-        ];
+        $result = ['http' => ['method' => 'POST']];
+
+        $token = $config->get('bearer')['mpl'] ?? null;
+        if ($token !== null) {
+            $result['http']['header'] = ['Content-Type: multipart/form-data; boundary=' . $boundary];
+            $result['http']['content'] = self::multipartBody($boundary, ['access_token' => $token]);
+        }
+
+        return $result;
     }
 }

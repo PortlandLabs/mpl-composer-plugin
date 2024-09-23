@@ -9,18 +9,11 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\PartialComposer;
 use Composer\Util\Filesystem;
+use Composer\Util\Platform;
 use React\Promise\PromiseInterface;
 
 class MatomoInstaller extends LibraryInstaller
 {
-    /**
-     * Directories and files that we'll automatically try to symlink in
-     */
-    protected const MATOMO_SYMLINKS = [
-        'plugins',
-        'common.config.ini.php',
-    ];
-
     public function __construct(
         protected Cache $cache,
         IOInterface $io,
@@ -42,9 +35,11 @@ class MatomoInstaller extends LibraryInstaller
 
     public function getInstallPath(PackageInterface $package): string
     {
+        $basePath = Platform::getCwd();
+
         return match ($package->getType()) {
-            'mpl-plugin', 'mpl-theme' => 'mpl-matomo/plugins/' . ($package->getExtra()['mpl']['name'] ?? $package->getName()),
-            'mpl-matomo' => 'mpl-matomo/',
+            'mpl-plugin', 'mpl-theme' => $basePath . '/mpl-matomo/plugins/' . ($package->getExtra()['mpl']['name'] ?? $package->getName()),
+            'mpl-matomo' => $basePath . '/mpl-matomo',
             default => parent::getInstallPath($package),
         };
     }
@@ -58,7 +53,7 @@ class MatomoInstaller extends LibraryInstaller
 
         return (match ($type) {
             'install', 'update' => match ($package->getType()) {
-                'mpl-matomo' => $cleanup->then(fn() => $this->createMatomoSymlinks(getcwd() . '/' . $this->getInstallPath($package))),
+                'mpl-matomo' => $cleanup->then(fn() => $this->createMatomoSymlinks($this->getInstallPath($package))),
                 default => $cleanup,
             },
             default => $cleanup,
@@ -72,8 +67,12 @@ class MatomoInstaller extends LibraryInstaller
         $links = $this->composer->getPackage()->getExtra()['mpl']['link'] ?? [];
         foreach ($links as $path) {
             $this->io->debug("Creating symlinks for {$path}");
-            $this->createSymlink(getcwd() . "/{$path}", "{$matomoPath}/{$path}");
+            $this->createSymlink(Platform::getCwd() . "/{$path}", "{$matomoPath}/{$path}");
         }
+
+        // Create vendor/autoload.php proxy
+        $this->filesystem->ensureDirectoryExists($matomoPath . '/vendor');
+        file_put_contents($matomoPath . '/vendor/autoload.php', file_get_contents(__DIR__ . '/../template/vendor/autoload.php'));
     }
 
     private function createSymlink(string $cwd, string $matomo): void
@@ -84,6 +83,7 @@ class MatomoInstaller extends LibraryInstaller
 
         if (!file_exists($matomo)) {
             $this->filesystem->relativeSymlink($cwd, $matomo);
+
             return;
         }
 

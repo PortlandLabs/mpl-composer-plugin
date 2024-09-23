@@ -4,7 +4,7 @@
   "repositories": {
     "local-plugin": {
       "type": "path",
-      "url": "../"
+      "url": "../../"
     }
   },
   "require": {
@@ -20,7 +20,7 @@
   "extra": {
     "mpl": {
       "link": [
-        "common.config.ini.php",
+        "config/common.config.ini.php",
         "plugins"
       ]
     }

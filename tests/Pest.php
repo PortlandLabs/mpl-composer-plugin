@@ -13,6 +13,9 @@
 
 // pest()->extend(Tests\TestCase::class)->in('Feature');
 
+pest()->group('unit')->in('Unit');
+pest()->group('integration')->in('Integration');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
@@ -28,6 +31,20 @@ expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
 
+expect()->extend('toBeLinkedTo', function (string $path) {
+    $this->toBeFile()->and(is_link($this->value))->toBeTrue()->and(readlink($this->value))->toBe($path);
+    return $this;
+});
+
+expect()->extend('toBeLink', function () {
+    $this->and(is_link($this->value))->toBeTrue();
+    return $this;
+});
+
+expect()->extend('andContents', function () {
+    $this->value = file_get_contents($this->value);
+    return $this;
+});
 /*
 |--------------------------------------------------------------------------
 | Functions
