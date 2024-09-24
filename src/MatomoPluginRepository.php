@@ -44,7 +44,6 @@ class MatomoPluginRepository extends ArrayRepository
             if (!($packageData['isDownloadable'] ?? false) || ($packageData['isBundle'] ?? true)) {
                 continue;
             }
-
             $owner = $packageData['owner'] ?? null;
             $name = $packageData['name'] ?? null;
             $description = $packageData['description'] ?? null;

@@ -1,7 +1,8 @@
 <?php
 
+use Symfony\Component\Process\Process;
 
-it('installs correctly', function () {
+test('example installs correctly', function () {
     echo "Integration tests require a valid matomo license capable of installing AbTesting 5.0.0";
 
     $baseDir = __DIR__ . '/../../example';
@@ -11,12 +12,13 @@ it('installs correctly', function () {
     expect($baseDir . '/vendor')->not->toBeFile('Unable to delete vendor directory');
     expect($baseDir . '/mpl-matomo')->not->toBeFile('Unable to delete mpl-matomo directory');
 
-    $install = new Symfony\Component\Process\Process(['composer', 'install'], $baseDir);
-    $install->run(function ($type, $buffer) {
-        echo "[$type] $buffer \n";
-    });
+    $install = new Symfony\Component\Process\Process(['composer', 'install', '--no-progress'], $baseDir);
+    $buffer = '';
+    if ($install->run(fn($type, $chunk) => $buffer .= "[$type] $chunk\n") !== 0) {
+        echo $buffer;
+    }
 
-    expect($install)->toBe(0)
+    expect($install->getExitCode())->toBe(0)
         // Main matomo directory exsits
         ->and($baseDir . '/mpl-matomo')->toBeDirectory()
         // Composer installed plugin exists
@@ -30,3 +32,60 @@ it('installs correctly', function () {
         ->andContents()->toBe(file_get_contents(__DIR__ . '/../../template/vendor/autoload.php'))
     ;
 });
+
+
+test('setup from scratch works', function () {
+
+    $tmp = sys_get_temp_dir() . '/mpl-' . bin2hex(random_bytes(8));
+    $pluginDir = $tmp . '/plugins/Test';
+    $fs = new \Composer\Util\Filesystem();
+    $fs->emptyDirectory($tmp);
+    $fs->emptyDirectory($pluginDir);
+
+    $steps = [
+        // Initialize a composer.json file
+        'echo {} > composer.json',
+        // Add our project as a local path repo
+        'composer config repositories.local path ../../../',
+        // Set the minimum stability to dev so it will install whatever is checked out
+        'composer config minimum-stability dev',
+        // Prefer stable, this isn't strictly necessary
+        'composer config prefer-stable true',
+        // Manually allow our plugin before trying to install since we can't interact
+        'composer config allow-plugins.mpl/composer-plugin true',
+        // Link our plugins directory
+        'composer config extra.mpl.link --json \'["plugins"]\'',
+        // Install our plugin
+        'composer require mpl/composer-plugin --no-interaction',
+        // Install a free matomo plugin
+        'composer require mpl/dominik-th-loginoidc --no-interaction',
+        // Install a paid matomo plugin
+        'composer require mpl/matomo-org-abtesting --no-interaction',
+    ];
+
+    try {
+        foreach ($steps as $step) {
+            $output = '';
+            $process = Process::fromShellCommandline($step, $tmp);
+            if ($process->run(fn($type, $chunk) => $output .= "[{$type}] {$chunk}\n") !== 0) {
+                echo $output;
+            }
+
+            expect($process)->getExitCode()->toBe(0);
+        }
+
+        // Validate the result
+        // Matomo itself is in place
+        expect("{$tmp}/mpl-matomo/config/global.ini.php")->toBeFile()
+            // Our extra.mpl.link worked
+            ->and("{$tmp}/mpl-matomo/plugins/Test")->toBeLinkedTo("../../plugins/Test")
+            // Our free matomo plugin was installed
+            ->and("{$tmp}/mpl-matomo/plugins/LoginOIDC")->toBeDirectory()->not->toBeLink()
+            ->and("{$tmp}/mpl-matomo/plugins/LoginOIDC/plugin.json")->toBeFile()
+            // Out paid matomo plugin was installed
+            ->and("{$tmp}/mpl-matomo/plugins/AbTesting")->toBeDirectory()->not->toBeLink()
+            ->and("{$tmp}/mpl-matomo/plugins/AbTesting/plugin.json")->toBeFile();
+    } finally {
+        $fs->removeDirectory($tmp);
+    }
+})->only();

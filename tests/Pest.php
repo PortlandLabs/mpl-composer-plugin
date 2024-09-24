@@ -45,6 +45,9 @@ expect()->extend('andContents', function () {
     $this->value = file_get_contents($this->value);
     return $this;
 });
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Functions
