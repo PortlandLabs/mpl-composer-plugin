@@ -25,5 +25,5 @@ jobs:
 
       - name: Tests
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MPL_MATOMO_GH_TOKEN }}
         run: composer test:integration -- --ci
