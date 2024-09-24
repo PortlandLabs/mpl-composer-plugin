@@ -14,14 +14,7 @@ test('example installs correctly', function () {
     expect($baseDir . '/mpl-matomo')->not->toBeFile('Unable to delete mpl-matomo directory');
 
     $install = new Symfony\Component\Process\Process(['composer', 'install', '--no-progress'], $baseDir);
-    $buffer = '';
-    $install->run(function ($type, $chunk) use (&$buffer) {
-        $buffer .= "[$type] $chunk\n";
-    });
-
-    if ($install->getExitCode() !== 0) {
-        echo $buffer;
-    }
+    $install->run(fn($type, $buffer) => print($buffer));
 
     expect($install->getExitCode())->toBe(0)
         // Main matomo directory exsits
@@ -71,13 +64,7 @@ test('setup from scratch works', function () {
         foreach ($steps as $step) {
             $output = '';
             $process = Process::fromShellCommandline($step, $tmp);
-            $process->run(function ($type, $chunk) use (&$output) {
-                $output .= "[{$type}] {$chunk}\n";
-            });
-
-            if ($process->getExitCode() !== 0) {
-                echo $output;
-            }
+            $process->run(fn($type, $buffer) => print($buffer));
 
             expect($process)->getExitCode()->toBe(0);
         }
