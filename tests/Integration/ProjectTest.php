@@ -62,8 +62,7 @@ test('setup from scratch works', function () {
 
     try {
         foreach ($steps as $step) {
-            $output = '';
-            $process = Process::fromShellCommandline($step, $tmp);
+            $process = Process::fromShellCommandline($step, $tmp, timeout: 600);
             $process->run(fn($type, $buffer) => print($buffer));
 
             expect($process)->getExitCode()->toBe(0);
