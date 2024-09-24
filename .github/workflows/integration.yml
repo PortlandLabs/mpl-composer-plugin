@@ -21,4 +21,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MPL_TOKEN: ${{ secrets.MPL_TOKEN }}
         run: composer test:integration -- --ci
