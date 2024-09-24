@@ -23,7 +23,8 @@ jobs:
       - name: Configure mpl token
         run: composer config --global --auth bearer.mpl "${{ secrets.MPL_TOKEN }}"
 
+      - name: Configure github token
+        run: composer config --global github-oauth.github.com "${{ secrets.MPL_MATOMO_GH_TOKEN }}"
+
       - name: Tests
-        env:
-          GITHUB_TOKEN: ${{ secrets.MPL_MATOMO_GH_TOKEN }}
         run: composer test:integration -- --ci
