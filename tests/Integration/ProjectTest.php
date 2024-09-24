@@ -1,12 +1,13 @@
 <?php
 
+use Composer\Util\Filesystem;
 use Symfony\Component\Process\Process;
 
 test('example installs correctly', function () {
     echo "Integration tests require a valid matomo license capable of installing AbTesting 5.0.0";
 
     $baseDir = __DIR__ . '/../../example';
-    $fs = new \Composer\Util\Filesystem();
+    $fs = new Filesystem();
     $fs->remove($baseDir . '/vendor');
     $fs->remove($baseDir . '/mpl-matomo');
     expect($baseDir . '/vendor')->not->toBeFile('Unable to delete vendor directory');
@@ -14,7 +15,11 @@ test('example installs correctly', function () {
 
     $install = new Symfony\Component\Process\Process(['composer', 'install', '--no-progress'], $baseDir);
     $buffer = '';
-    if ($install->run(fn($type, $chunk) => $buffer .= "[$type] $chunk\n") !== 0) {
+    $install->run(function ($type, $chunk) use (&$buffer) {
+        $buffer .= "[$type] $chunk\n";
+    });
+
+    if ($install->getExitCode() !== 0) {
         echo $buffer;
     }
 
@@ -35,10 +40,9 @@ test('example installs correctly', function () {
 
 
 test('setup from scratch works', function () {
-
-    $tmp = sys_get_temp_dir() . '/mpl-' . bin2hex(random_bytes(8));
+    $tmp = __DIR__ . '/../.test-cache/mpl-' . bin2hex(random_bytes(8));
     $pluginDir = $tmp . '/plugins/Test';
-    $fs = new \Composer\Util\Filesystem();
+    $fs = new Filesystem();
     $fs->emptyDirectory($tmp);
     $fs->emptyDirectory($pluginDir);
 
@@ -67,7 +71,11 @@ test('setup from scratch works', function () {
         foreach ($steps as $step) {
             $output = '';
             $process = Process::fromShellCommandline($step, $tmp);
-            if ($process->run(fn($type, $chunk) => $output .= "[{$type}] {$chunk}\n") !== 0) {
+            $process->run(function ($type, $chunk) use (&$output) {
+                $output .= "[{$type}] {$chunk}\n";
+            });
+
+            if ($process->getExitCode() !== 0) {
                 echo $output;
             }
 

@@ -21,7 +21,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Configure mpl token
-        run: composer config --global --auth bearer.mpl ${{ secrets.MPL_TOKEN }}
+        run: composer config --global --auth bearer.mpl "${{ secrets.MPL_TOKEN }}"
 
       - name: Tests
         env:
