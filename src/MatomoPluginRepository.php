@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PortlandLabs\MatomoMarketplacePlugin;
 
 use Composer\Cache;
@@ -9,8 +11,9 @@ use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Package;
 use Composer\Repository\ArrayRepository;
 use Composer\Util\HttpDownloader;
+use PortlandLabs\MatomoMarketplacePlugin\Model\MatomoPlugin;
 
-class MatomoPluginRepository extends ArrayRepository
+final class MatomoPluginRepository extends ArrayRepository
 {
     protected const API = 'https://plugins.matomo.org';
     protected const API_VERSION = '2.0';
@@ -35,86 +38,84 @@ class MatomoPluginRepository extends ArrayRepository
         parent::__construct([]);
     }
 
+    #[\Override]
     protected function initialize(): void
     {
         $this->packages = [];
         $json = $this->fetchJson($this->apiUrl('/plugins', []), Util::authOptions($this->config))['plugins'] ?? [];
+        $packages = array_map(MatomoPlugin::fromJsonData(...), $json);
 
-        foreach ($json as $packageData) {
-            if (!($packageData['isDownloadable'] ?? false) || ($packageData['isBundle'] ?? true)) {
-                continue;
-            }
-            $owner = $packageData['owner'] ?? null;
-            $name = $packageData['name'] ?? null;
-            $description = $packageData['description'] ?? null;
-            $versions = $packageData['versions'] ?? [];
-            $keywords = $packageData['keywords'] ?? [];
-            $type = $packageData['isTheme'] ? 'mpl-theme' : 'mpl-plugin';
-            $homepage = $packageData['homepage'] ?? null;
-
-            if (!$owner || !$name || !$versions) {
+        /** @var MatomoPlugin $package */
+        foreach ($packages as $package) {
+            /**
+             * @TODO Support bundles
+             */
+            if (!$package->isDownloadable || $package->isBundle) {
                 continue;
             }
 
-            $handle = 'mpl/' . strtolower($owner) . '-' . strtolower($name);
+            if ($package->owner === '' || $package->name === '' || $package->versions === []) {
+                continue;
+            }
 
-            foreach ($versions as $versionData) {
-                $knownFailures = $this::KNOWN_FAILURES["{$owner}/{$name}"] ?? [];
-                if (in_array($versionData['name'], $knownFailures)) {
-                    $this->io->debug("Skipping known failure {$owner}/{$name}@{$versionData['name']}");
+            $handle = $package->getMplHandle();
+            foreach ($package->versions as $version) {
+                $pkgName = "{$package->owner}/{$package->name}";
+                $debugName = "{$pkgName}@{$version->name}";
+                $knownFailures = $this::KNOWN_FAILURES[$pkgName] ?? [];
+                if (in_array($version->name, $knownFailures, true)) {
+                    $this->io->debug("Skipping known failure {$debugName}");
                     continue;
                 }
-                $download = $versionData['download'] ?? null;
-                if (!$download) {
+
+                if ($version->download === '') {
                     continue;
                 }
 
-                $package = [
+                $packageData = [
                     'name' => $handle,
-                    'matomo_name' => $name,
-                    'matomo_owner' => $owner,
-                    'description' => $description,
-                    'version' => $versionData['name'] ?? null,
-                    'keywords' => $keywords,
-                    'homepage' => $homepage,
-                    'type' => $type,
-                    'time' => $versionData['release'] ?? null,
+                    'extra' => [
+                        'mpl' => [
+                            'name' => $package->name,
+                            'owner' => $package->owner,
+                        ],
+                    ],
+                    'description' => $package->description,
+                    'version' => $version->name,
+                    'keywords' => [
+                        ...$package->keywords,
+                        ...$package->type->keywords(),
+                    ],
+                    'homepage' => $package->homepage,
+                    'type' => $package->type->composerType(),
+                    'time' => $version->release,
                     'dist' => [
-                        'url' => $this::API . ($versionData['download'] ?? ''),
-                        'type' => 'mpl-plugin',
+                        'url' => $this::API . $version->download,
+                        'type' => 'mpl-plugin', // This is the download type, not the package type
                     ],
                     'require' => [
-                        'php' => $versionData['requires']['php'] ?? '*',
+                        'php' => $version->requires['php'] ?? '*',
                     ],
                 ];
 
-                $license = $versionData['license']['name'] ?? null;
-                if ($license) {
-                    $package['license'] = $license;
+                if ($version->license !== '') {
+                    $packageData['license'] = $version->license;
                 }
 
-                $matomoRequirement = $versionData['requires']['matomo'] ?? $versionData['requires']['piwik'] ?? null;
+                $matomoRequirement = $version->requires['matomo'] ?? $version->requires['piwik'] ?? null;
                 if ($matomoRequirement !== null) {
-                    $package['require']['mpl/matomo'] = $matomoRequirement;
+                    $packageData['require']['mpl/matomo'] = $matomoRequirement;
                 }
 
                 try {
-                    $pkg = $this->loader->load($package);
+                    $pkg = $this->loader->load($packageData);
                     if (!$pkg instanceof Package) {
                         throw new \RuntimeException('Invalid type returned from loading plugin package json.');
                     }
 
-                    $pkg->setExtra([
-                        ...$pkg->getExtra(),
-                        'mpl' => [
-                            'name' => $name,
-                            'owner' => $owner,
-                        ],
-                    ]);
-
                     $this->addPackage($pkg);
                 } catch (\Throwable $e) {
-                    $this->io->debug('Unable to load ' . "{$owner}/{$name}@{$package['version']}" . ': ' . $e->getMessage());
+                    $this->io->debug('Unable to load ' . $debugName . ': ' . $e->getMessage());
                 }
             }
         }
@@ -129,17 +130,17 @@ class MatomoPluginRepository extends ArrayRepository
         $cacheKey = 'mpl/' . hash('sha256', $uri) . '.json';
         $cacheAge = $this->cache->getAge($cacheKey);
         if ($cacheAge !== false && $cacheAge < $ttl) {
-            return json_decode((string) $this->cache->read($cacheKey), true);
+            return json_decode((string) $this->cache->read($cacheKey), true, flags: JSON_THROW_ON_ERROR);
         }
 
-        $this->io->notice('Loading matomo plugins, this usually takes about 10 seconds...');
+        $this->io->write('<info>Loading matomo plugins, this usually takes about 10 seconds...</info>');
         $result = $this->downloader->get($uri, $options)->getBody();
         if ($result === null) {
             throw new \RuntimeException('Failed to fetch json.');
         }
 
         $this->cache->write($cacheKey, $result);
-        return json_decode($result, true);
+        return json_decode($result, true, flags: JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -149,14 +150,14 @@ class MatomoPluginRepository extends ArrayRepository
      */
     protected function apiUrl(string $path, array $query = []): string
     {
-        $separator = str_contains($this::API, '?') ? '&' : '?';
+        $separator = str_contains((string) $this::API, '?') ? '&' : '?';
         $path = ltrim($path, '/');
-        $query = http_build_query($query);
-        $api = rtrim($this::API, '/') . '/api';
+        $api = rtrim((string) $this::API, '/') . '/api';
         $version = $this::API_VERSION;
-        return "{$api}/{$version}/{$path}{$separator}{$query}";
+        return "{$api}/{$version}/{$path}{$separator}" . http_build_query($query);
     }
 
+    #[\Override]
     public function getRepoName(): string
     {
         return 'Matomo';

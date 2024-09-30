@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PortlandLabs\MatomoMarketplacePlugin;
 
 use Composer\Cache;
@@ -12,7 +14,7 @@ use Composer\Util\Filesystem;
 use Composer\Util\Platform;
 use React\Promise\PromiseInterface;
 
-class MatomoInstaller extends LibraryInstaller
+final class MatomoInstaller extends LibraryInstaller
 {
     public function __construct(
         protected Cache $cache,
@@ -25,6 +27,7 @@ class MatomoInstaller extends LibraryInstaller
         parent::__construct($io, $composer, $type, $filesystem, $binaryInstaller);
     }
 
+    #[\Override]
     public function supports(string $packageType): bool
     {
         return match ($packageType) {
@@ -33,6 +36,7 @@ class MatomoInstaller extends LibraryInstaller
         };
     }
 
+    #[\Override]
     public function getInstallPath(PackageInterface $package): string
     {
         $basePath = Platform::getCwd();
@@ -44,6 +48,7 @@ class MatomoInstaller extends LibraryInstaller
         };
     }
 
+    #[\Override]
     public function cleanup($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
     {
         $cleanup = parent::cleanup($type, $package, $prevPackage);
@@ -62,7 +67,7 @@ class MatomoInstaller extends LibraryInstaller
         );
     }
 
-    private function createMatomoSymlinks(string $matomoPath): void
+    protected function createMatomoSymlinks(string $matomoPath): void
     {
         $links = $this->composer->getPackage()->getExtra()['mpl']['link'] ?? [];
         foreach ($links as $path) {
@@ -75,7 +80,7 @@ class MatomoInstaller extends LibraryInstaller
         file_put_contents($matomoPath . '/vendor/autoload.php', file_get_contents(__DIR__ . '/../template/vendor/autoload.php'));
     }
 
-    private function createSymlink(string $cwd, string $matomo): void
+    protected function createSymlink(string $cwd, string $matomo): void
     {
         if (!file_exists($cwd)) {
             return;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PortlandLabs\MatomoMarketplacePlugin;
 
 use Composer\Composer;
@@ -9,8 +11,9 @@ use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Composer\Util\SyncHelper;
 
-class MatomoEventSubscriber implements EventSubscriberInterface
+final class MatomoEventSubscriber implements EventSubscriberInterface
 {
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [
@@ -54,7 +57,7 @@ class MatomoEventSubscriber implements EventSubscriberInterface
     }
 
 
-    private function reinstallMissingPlugin(Composer $composer, PackageInterface $lockedPackage, string $path): void
+    protected function reinstallMissingPlugin(Composer $composer, PackageInterface $lockedPackage, string $path): void
     {
         SyncHelper::downloadAndInstallPackageSync(
             $composer->getLoop(),

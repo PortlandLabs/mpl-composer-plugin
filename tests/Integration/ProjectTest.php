@@ -3,7 +3,7 @@
 use Composer\Util\Filesystem;
 use Symfony\Component\Process\Process;
 
-test('example installs correctly', function () {
+test('example installs correctly', function (): void {
     echo "Integration tests require a valid matomo license capable of installing AbTesting 5.0.0";
 
     $baseDir = __DIR__ . '/../../example';
@@ -20,7 +20,7 @@ test('example installs correctly', function () {
         // Main matomo directory exsits
         ->and($baseDir . '/mpl-matomo')->toBeDirectory()
         // Composer installed plugin exists
-        ->and($baseDir . '/mpl-matomo/plugins/AbTesting')->toBeDirectory()->not->toBeLink()
+        ->and($baseDir . '/mpl-matomo/plugins/ForceSSL')->toBeDirectory()->not->toBeLink()
         // Linked config file exists
         ->and($baseDir . '/mpl-matomo/config/common.config.ini.php')->toBeLinkedTo("../../config/common.config.ini.php")
         // Linked plugin
@@ -32,8 +32,8 @@ test('example installs correctly', function () {
 });
 
 
-test('setup from scratch works', function () {
-    $tmp = __DIR__ . '/../.test-cache/mpl-' . bin2hex(random_bytes(8));
+test('setup from scratch works', function (): void {
+    $tmp = __DIR__ . '/../../.test-cache/mpl-' . bin2hex(random_bytes(8));
     $pluginDir = $tmp . '/plugins/Test';
     $fs = new Filesystem();
     $fs->emptyDirectory($tmp);
@@ -43,7 +43,7 @@ test('setup from scratch works', function () {
         // Initialize a composer.json file
         'echo {} > composer.json',
         // Add our project as a local path repo
-        'composer config repositories.local path ../../../',
+        'composer config repositories.local path ../../',
         // Set the minimum stability to dev so it will install whatever is checked out
         'composer config minimum-stability dev',
         // Prefer stable, this isn't strictly necessary
@@ -65,7 +65,7 @@ test('setup from scratch works', function () {
             $process = Process::fromShellCommandline($step, $tmp, timeout: 600);
             $process->run(fn($type, $buffer) => print($buffer));
 
-            expect($process)->getExitCode()->toBe(0);
+            expect($process)->getExitCode()->toBe(0, 'Failed on step: ' . $step);
         }
 
         // Validate the result
@@ -82,4 +82,4 @@ test('setup from scratch works', function () {
     } finally {
         $fs->removeDirectory($tmp);
     }
-})->only();
+});

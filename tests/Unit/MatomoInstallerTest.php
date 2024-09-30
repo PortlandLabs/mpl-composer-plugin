@@ -7,7 +7,7 @@ use Composer\Package\Package;
 use Composer\PartialComposer;
 use PortlandLabs\MatomoMarketplacePlugin\MatomoInstaller;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->io = new BufferIO();
     $this->config = new Config();
     $this->composer = new PartialComposer();
@@ -16,7 +16,7 @@ beforeEach(function () {
     $this->installer = new MatomoInstaller($this->cache, $this->io, $this->composer);
 });
 
-it('supports our custom types', function (string $type, bool $supported) {
+it('supports our custom types', function (string $type, bool $supported): void {
     expect($this->installer->supports($type))->toBe($supported);
 })->with([
     ['mpl-matomo', true],
@@ -26,7 +26,7 @@ it('supports our custom types', function (string $type, bool $supported) {
     ['library', false],
 ]);
 
-it('provides the correct paths', function (string $type, string $expect) {
+it('provides the correct paths', function (string $type, string $expect): void {
     $pkg = new Package('foo', '1.0.0.0', '1');
     $pkg->setType($type);
     $cwd = getcwd();

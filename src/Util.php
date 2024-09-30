@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PortlandLabs\MatomoMarketplacePlugin;
 
 use Composer\Config;
 
-class Util
+final class Util
 {
     /**
      * @param string $boundary
@@ -28,15 +30,6 @@ class Util
         return "--{$boundary}\n" . implode("\n--{$boundary}\n", $body) . "\n--{$boundary}--";
     }
 
-    private static function multipartBlock(string $key, string $value): string
-    {
-        return <<<BODY
-            Content-Disposition: form-data; name="{$key}"
-            
-            {$value}
-            BODY;
-    }
-
     /**
      * @param Config $config
      * @return array{http: array{method: string, header?: string[], content?: string}}
@@ -51,7 +44,7 @@ class Util
         $token = $token ?? $_ENV['MPL_TOKEN'] ?? getenv('MPL_TOKEN') ?: null;
 
         // Next try config
-        $token = $token ?? $config->get('bearer')['mpl'] ?? null;
+        $token ??= $config->get('bearer')['mpl'] ?? null;
 
         if ($token !== null) {
             $result['http']['header'] = ['Content-Type: multipart/form-data; boundary=' . $boundary];
@@ -59,5 +52,14 @@ class Util
         }
 
         return $result;
+    }
+
+    protected static function multipartBlock(string $key, string $value): string
+    {
+        return <<<BODY
+            Content-Disposition: form-data; name="{$key}"
+            
+            {$value}
+            BODY;
     }
 }

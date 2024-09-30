@@ -10,7 +10,8 @@
         "pestphp/pest": "^3.0",
         "laravel/pint": "^1.17",
         "phpstan/phpstan": "^1.12",
-        "phpstan/extension-installer": "^1.4"
+        "phpstan/extension-installer": "^1.4",
+        "rector/rector": "^1.2"
     },
     "autoload": {
         "psr-4": {
@@ -33,11 +34,13 @@
         "test:lint": "@lint --test",
         "test:unit":  "pest --group unit",
         "test:integration":  "pest --group integration",
+        "test:arch":  "pest --arch",
         "test:types": "phpstan",
         "test": [
             "@test:lint",
             "@test:unit",
-            "@test:types"
+            "@test:types",
+            "@test:arch"
         ]
     }
 }

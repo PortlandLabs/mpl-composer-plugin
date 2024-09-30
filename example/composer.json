@@ -10,7 +10,7 @@
   "require": {
     "mpl/composer-plugin": "dev-main",
     "mpl/matomo": "5.1.1",
-    "mpl/matomo-org-abtesting": "^5.2"
+    "mpl/matomo-org-forcessl": "^5.0"
   },
   "config": {
     "allow-plugins": {

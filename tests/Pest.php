@@ -27,9 +27,9 @@ pest()->group('integration')->in('Integration');
 |
 */
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
+//expect()->extend('toBeOne', function () {
+//    return $this->toBe(1);
+//});
 
 expect()->extend('toBeLinkedTo', function (string $path) {
     $this->toBeFile()->and(is_link($this->value))->toBeTrue()->and(readlink($this->value))->toBe($path);
@@ -46,8 +46,6 @@ expect()->extend('andContents', function () {
     return $this;
 });
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Functions
@@ -59,7 +57,48 @@ expect()->extend('andContents', function () {
 |
 */
 
-function something()
+enum FuzzType
 {
-    // ..
+    case String;
+    case Int;
+    case Float;
+    case Bool;
+    case Array;
+
+    public function getValues(): array
+    {
+        return match ($this) {
+            self::String => ['', random_bytes(1024), '0', 'false', '-1', 'foo'],
+            self::Int => [1, 0, PHP_INT_MAX, PHP_INT_MIN],
+            self::Float => [1.1, 0.0, PHP_FLOAT_MAX, PHP_FLOAT_MIN],
+            self::Bool => [true, false],
+            self::Array => [['foo', 'bar', 'baz', 'qux'], [0, 1, 2, 3], ['foo' => 'bar', 'baz' => 'buz']],
+        };
+    }
+}
+
+/**
+ * @param array<string, FuzzType|array> $keys
+ * @return Generator
+ */
+function simple_fuzz(array $keys): \Generator
+{
+    $testsNeeded = [];
+    foreach ($keys as $key => $value) {
+        $testsNeeded[$key] = $value instanceof FuzzType ? $value->getValues() : $value;
+        shuffle($testsNeeded[$key]);
+    }
+
+    do {
+        $case = [];
+        foreach ($testsNeeded as $key => &$value) {
+            $case[$key] = array_shift($value);
+            if ($value === []) {
+                unset($testsNeeded[$key]);
+            }
+        }
+        unset($value);
+
+        yield $case;
+    } while ($case !== []);
 }

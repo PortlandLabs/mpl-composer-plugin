@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a9b77f68d26efd5d9dc02d8d8e6c7239",
+    "content-hash": "df54c5f5a72e210621633de611090bf3",
     "packages": [
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.1",
+            "version": "1.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "063d9aa8696582f5a41dffbbaf3c81024f0a604a"
+                "reference": "48a792895a2b7a6ee65dd5442c299d7b835b6137"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/063d9aa8696582f5a41dffbbaf3c81024f0a604a",
-                "reference": "063d9aa8696582f5a41dffbbaf3c81024f0a604a",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/48a792895a2b7a6ee65dd5442c299d7b835b6137",
+                "reference": "48a792895a2b7a6ee65dd5442c299d7b835b6137",
                 "shasum": ""
             },
             "require": {
@@ -27,8 +27,8 @@
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^8 || ^9",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
-                "symfony/phpunit-bridge": "^4.2 || ^5",
                 "symfony/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "type": "library",
@@ -64,7 +64,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.1"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.2"
             },
             "funding": [
                 {
@@ -80,7 +80,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-08T15:28:20+00:00"
+            "time": "2024-09-25T07:49:53+00:00"
         },
         {
             "name": "composer/semver",
@@ -277,16 +277,16 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v1.3.4",
+            "version": "v1.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "61b87392d986dc49ad5ef64e75b1ff5fee24ef81"
+                "reference": "1dc4a3dbfa2b7628a3114e43e32120cce7cdda9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/61b87392d986dc49ad5ef64e75b1ff5fee24ef81",
-                "reference": "61b87392d986dc49ad5ef64e75b1ff5fee24ef81",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/1dc4a3dbfa2b7628a3114e43e32120cce7cdda9c",
+                "reference": "1dc4a3dbfa2b7628a3114e43e32120cce7cdda9c",
                 "shasum": ""
             },
             "require": {
@@ -334,7 +334,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2024-08-02T07:48:17+00:00"
+            "time": "2024-09-23T13:33:08+00:00"
         },
         {
             "name": "lox/xhprof",
@@ -473,16 +473,16 @@
         },
         {
             "name": "matomo/device-detector",
-            "version": "6.4.0",
+            "version": "6.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/matomo-org/device-detector.git",
-                "reference": "05dca429cfe7b6a59947a0d449dbeb60cddc02f2"
+                "reference": "0d364e0dd6c177da3c24cd4049178026324fd7ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/matomo-org/device-detector/zipball/05dca429cfe7b6a59947a0d449dbeb60cddc02f2",
-                "reference": "05dca429cfe7b6a59947a0d449dbeb60cddc02f2",
+                "url": "https://api.github.com/repos/matomo-org/device-detector/zipball/0d364e0dd6c177da3c24cd4049178026324fd7ac",
+                "reference": "0d364e0dd6c177da3c24cd4049178026324fd7ac",
                 "shasum": ""
             },
             "require": {
@@ -538,7 +538,7 @@
                 "source": "https://github.com/matomo-org/matomo",
                 "wiki": "https://dev.matomo.org/"
             },
-            "time": "2024-09-10T08:27:24+00:00"
+            "time": "2024-09-24T13:50:04+00:00"
         },
         {
             "name": "matomo/doctrine-cache-fork",
@@ -1037,7 +1037,7 @@
             "dist": {
                 "type": "path",
                 "url": "..",
-                "reference": "a4d16a16ac720201bc365a7b9de926ad62020053"
+                "reference": "83ce1b0a4124e8e7af261e62ab5ba6be54d5b85a"
             },
             "require": {
                 "composer-plugin-api": "^2.0",
@@ -1048,7 +1048,8 @@
                 "laravel/pint": "^1.17",
                 "pestphp/pest": "^3.0",
                 "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan": "^1.12"
+                "phpstan/phpstan": "^1.12",
+                "rector/rector": "^1.2"
             },
             "type": "composer-plugin",
             "extra": {
@@ -1092,13 +1093,13 @@
             "version": "5.1.1",
             "source": {
                 "type": "git",
-                "url": "git@github.com:PortlandLabs/mpl-matomo.git",
-                "reference": "0159a783647b08c68db483dfee0bf27deb8fb033"
+                "url": "https://github.com/PortlandLabs/mpl-matomo.git",
+                "reference": "b43bc35246f4340fcb4da4c067fedd625a151247"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PortlandLabs/mpl-matomo/zipball/0159a783647b08c68db483dfee0bf27deb8fb033",
-                "reference": "0159a783647b08c68db483dfee0bf27deb8fb033",
+                "url": "https://api.github.com/repos/PortlandLabs/mpl-matomo/zipball/b43bc35246f4340fcb4da4c067fedd625a151247",
+                "reference": "b43bc35246f4340fcb4da4c067fedd625a151247",
                 "shasum": ""
             },
             "require": {
@@ -1146,25 +1147,21 @@
             },
             "type": "mpl-matomo",
             "autoload": {
-                "psr-4": {
-                    "Piwik\\Plugins\\": "plugins/",
-                    "Piwik\\": "core/"
-                },
-                "psr-0": {
-                    "Zend_": "libs/",
-                    "HTML_": "libs/",
-                    "PEAR_": "libs/",
-                    "Archive_": "libs/"
-                },
                 "files": [
                     "LegacyAutoloader.php"
-                ]
-            },
-            "autoload-dev": {
+                ],
+                "psr-0": {
+                    "HTML_": "libs/",
+                    "PEAR_": "libs/",
+                    "Zend_": "libs/",
+                    "Archive_": "libs/"
+                },
                 "psr-4": {
-                    "Piwik\\Tests\\": "tests/PHPUnit/"
+                    "Piwik\\": "core/",
+                    "Piwik\\Plugins\\": "plugins/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0+"
             ],
@@ -1186,49 +1183,46 @@
             "support": {
                 "forum": "https://forum.matomo.org/",
                 "issues": "https://github.com/matomo-org/matomo/issues",
-                "wiki": "https://github.com/matomo-org/matomo/wiki",
-                "source": "https://github.com/matomo-org/matomo"
+                "source": "https://github.com/matomo-org/matomo",
+                "wiki": "https://github.com/matomo-org/matomo/wiki"
             },
-            "time": "2024-09-21T01:13:52+00:00"
+            "time": "2024-09-25T21:08:10+00:00"
         },
         {
-            "name": "mpl/matomo-org-abtesting",
-            "version": "5.2.1",
+            "name": "mpl/matomo-org-forcessl",
+            "version": "5.0.1",
             "dist": {
                 "type": "mpl-plugin",
-                "url": "https://plugins.matomo.org/api/2.0/plugins/AbTesting/download/5.2.1"
+                "url": "https://plugins.matomo.org/api/2.0/plugins/ForceSSL/download/5.0.1"
             },
             "require": {
-                "mpl/matomo": ">=5.0.0-rc1,<6.0.0-b1",
+                "mpl/matomo": ">=5.0.0-b1,<6.0.0-b1",
                 "php": "*"
             },
             "type": "mpl-plugin",
             "extra": {
                 "mpl": {
-                    "name": "AbTesting",
+                    "name": "ForceSSL",
                     "owner": "matomo-org"
                 }
             },
             "license": [
-                "InnoCraft EULA"
+                "GPL v3+"
             ],
-            "description": "Increase revenue and conversions by comparing different versions of your websites or apps & detect the winning variation that will grow your business!",
-            "homepage": "https://www.ab-tests.net",
+            "description": "Automatically redirect all http requests to https. For security reasons it is recommended to always use Matomo Analytics over https (SSL).",
+            "homepage": "https://www.innocraft.com",
             "keywords": [
-                "Marketing",
-                "a/b",
-                "abtests",
-                "cro",
-                "experiments",
-                "improve",
-                "optimze",
-                "split",
-                "test",
-                "tests",
-                "variant",
-                "variation"
+                "analytics",
+                "certificate",
+                "https",
+                "mpl-free",
+                "mpl-free-plugin",
+                "privacy",
+                "secure",
+                "security",
+                "ssl"
             ],
-            "time": "2024-09-23T02:33:07+00:00"
+            "time": "2024-04-22T06:06:04+00:00"
         },
         {
             "name": "mustangostang/spyc",

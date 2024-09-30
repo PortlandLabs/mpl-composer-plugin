@@ -5,7 +5,8 @@ use PortlandLabs\MatomoMarketplacePlugin\Util;
 
 covers(Util::class);
 
-it('authenticates requests properly', function () {
+it('authenticates requests properly', function (): void {
+
     $token = bin2hex(random_bytes(16));
     $config = $this->createStub(\Composer\Config::class);
     $config->method('get')->willReturnMap([['bearer', ['mpl' => $token]]]);
@@ -24,7 +25,7 @@ it('authenticates requests properly', function () {
             MULTI);
 });
 
-it('handles empty tokens', function () {
+it('handles empty tokens', function (): void {
     $config = $this->createStub(\Composer\Config::class);
     $config->method('get')->willReturnMap([['bearer', []]]);
 
@@ -50,7 +51,7 @@ function parse_multipart(string $boundary, string $body): array
     return $result;
 }
 
-it('builds multipart bodies properly', function (array $payload, callable $expect) {
+it('builds multipart bodies properly', function (array $payload, callable $expect): void {
     $boundary = bin2hex(random_bytes(16));
     $expect(expect(parse_multipart($boundary, Util::multipartBody($boundary, $payload))));
 })->with([
@@ -65,3 +66,27 @@ it('builds multipart bodies properly', function (array $payload, callable $expec
             ->{4}->toBe(['baz[]', '456']),
     ],
 ]);
+
+it('loads license from env', function (string $name) {
+    try {
+        $config = $this->createStub(\Composer\Config::class);
+        expect(Util::authOptions($config)['http']['content'] ?? null)
+            ->toBe(null);
+
+        // Ensure `_ENV` works
+        $token = bin2hex(random_bytes(16));
+        $_ENV[$name] = $token;
+        expect(Util::authOptions($config)['http']['content'] ?? null)
+            ->toContain($token);
+        unset($_ENV[$name]);
+
+        // Ensure putenv works
+        $token = bin2hex(random_bytes(16));
+        putenv("{$name}={$token}");
+        expect(Util::authOptions($config)['http']['content'] ?? null)
+            ->toContain($token);
+    } finally {
+        putenv($name . '=');
+        unset($_ENV[$name]);
+    }
+})->with(['MATOMO_TOKEN', 'MPL_TOKEN']);

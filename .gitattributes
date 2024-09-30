@@ -1,8 +1,12 @@
 /.github export-ignore
-/test-project export-ignore
+/example export-ignore
 /tests export-ignore
-/*.xml export-ignore
 /phpstan.neon export-ignore
 /phpunit.xml export-ignore
 /pint.json export-ignore
-
+/rector.php export-ignore
+/.gitignore export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml export-ignore
+/pint.json export-ignore
+/rector.php export-ignore
