@@ -44,7 +44,7 @@ it('downloads with credentials', function (bool $output, string $type, string $m
     } else {
         $deferred->resolve(null);
     }
-    expect($package->getTransportOptions())->toBe([]);
+    expect($package->getTransportOptions())->toBe(['http' => ['timeout' => 120]]);
 })->with(
     [true, false],
     ['mpl-plugin', 'mpl-theme'],
