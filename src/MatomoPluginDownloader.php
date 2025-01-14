@@ -27,6 +27,7 @@ final class MatomoPluginDownloader extends ZipDownloader
         // Add our transport options to plugins that match our type
         if ($type === 'mpl-plugin' || $type === 'mpl-theme') {
             $options = $package->getTransportOptions();
+            $options['http']['timeout'] ??= 120;
             $package->setTransportOptions(array_merge_recursive($options, Util::authOptions($this->config)));
             $finally = fn() => $package->setTransportOptions($options);
         }
